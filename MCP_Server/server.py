@@ -199,11 +199,8 @@ def get_ableton_connection():
     
     if _ableton_connection is not None:
         try:
-            # Test the connection with a simple ping
-            # We'll try to send an empty message, which should fail if the connection is dead
-            # but won't affect Ableton if it's alive
-            _ableton_connection.sock.settimeout(1.0)
-            _ableton_connection.sock.sendall(b'')
+            # Test the connection with a simple command
+            _ableton_connection.send_command("get_session_info")
             return _ableton_connection
         except Exception as e:
             logger.warning(f"Existing connection is no longer valid: {str(e)}")
@@ -418,9 +415,9 @@ def load_instrument_or_effect(ctx: Context, track_index: int, uri: str) -> str:
     """
     try:
         ableton = get_ableton_connection()
-        result = ableton.send_command("load_browser_item", {
+        result = ableton.send_command("load_instrument_or_effect", {
             "track_index": track_index,
-            "item_uri": uri
+            "uri": uri
         })
         
         # Check if the instrument was loaded successfully
